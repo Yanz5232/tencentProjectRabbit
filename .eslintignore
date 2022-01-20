@@ -1,0 +1,3 @@
+dist文件和/src/vender文件不做 eslintig 校验
+/dist
+/src/vender
