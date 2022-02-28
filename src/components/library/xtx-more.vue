@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: "xtxMore",
+  name: "XtxMore",
   props:{
     path:{
       type:String,

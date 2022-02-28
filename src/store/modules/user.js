@@ -18,12 +18,18 @@ export default {
                 mobile: '',
                 //用户token
                 token: ''
-            }
+            },
+            /* 回跳路劲 */
+            redirectUrl: ''
         }
     },
     mutations: {
         setUser(state, payload) {
             state.userInfo = payload
+        },
+        setRedirectUrl(state, url) {
+            console.log('保存成功' + url);
+            state.redirectUrl = url
         }
     }
 }

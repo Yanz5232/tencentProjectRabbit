@@ -2,21 +2,21 @@
   <div class="page-login">
     <LoginHeader>欢迎登入</LoginHeader>
     <section class="login-section">
-    <div class="wrapper">
-      <nav>
-        <a @click="activeName='account'" href="javascript:;">账户登录</a>
-        <a @click="activeName='qrcode'" href="javascript:;">扫码登录</a>
-      </nav>
-      <!-- 账号登入&扫码登入 -->
-      <div v-if="activeName=='account'" class="account-box">
+      <div class="wrapper">
+        <nav>
+          <a @click="activeName='account'" href="javascript:;">账户登录</a>
+          <a @click="activeName='qrcode'" href="javascript:;">扫码登录</a>
+        </nav>
+        <!-- 账号登入&扫码登入 -->
+        <div v-if="activeName=='account'" class="account-box">
         <LoginForm></LoginForm>
-      </div>
-      <div v-if="activeName=='qrcode'" class="qrcode-box">
+        </div>
+        <div v-if="activeName=='qrcode'" class="qrcode-box">
         <img src="@/assets/images/qrcode.jpg" alt="">
         <p>打开<a href="javascript:;">小兔鲜App</a>扫码登入</p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
     <LoginFooter></LoginFooter>
   </div>
 </template>
@@ -24,7 +24,9 @@
 import LoginHeader from'./components/loginHeader.vue'
 import LoginFooter from'./components/loginFooter.vue'
 import LoginForm from'./components/loginForm.vue'
-import { reactive, ref } from 'vue'
+import {  ref } from 'vue'
+import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
 export default {
   name: 'PageLogin',
   components:{
@@ -34,7 +36,9 @@ export default {
   },
   setup(){
     const activeName=ref('account')
-    
+    const store=useStore()
+    const route=useRoute()
+    store.commit('user/setRedirectUrl',route.query.redirectUrl || '/')
     return{
       activeName,
     }

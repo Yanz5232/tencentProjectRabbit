@@ -10,23 +10,21 @@
         <i class="iconfont icon-sousuo"></i>
         <input type="text" placeholder="搜一搜">
       </div>
-      <!-- 购物车 -->
-      <div class="cart">
-        <a href="#" class="curr">
-          <i class="iconfont icon-gouwucheman"></i><em>2</em>
-        </a>
-      </div>
+      <!-- 使用头部购物车组件 -->
+      <AppHeaderCart></AppHeaderCart>
     </div>
   </header>
 </template>
 
 <script>
 import headerNav from'./header-nav.vue'
+import AppHeaderCart from'./app-header-cart.vue'
 export default {
   name: "headerTop",
   setup() {},
   components:{
-    headerNav
+    headerNav,
+    AppHeaderCart
   }
 };
 </script>

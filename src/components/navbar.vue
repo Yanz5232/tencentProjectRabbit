@@ -3,8 +3,8 @@
      <div class="container">
        <ul>
          <template v-if="userInfo.token">
-            <li><a href="javascript:;"><i class="iconfont icon-yonghu"></i>{{userInfo.account}}</a></li>
-            <li><a href="javascript:;">退出登入</a></li>
+            <li><router-link to="/member"><i class="iconfont icon-yonghu"></i>{{userInfo.account}}</router-link></li>
+            <li><a @click="loginOut" href="javascript:;">退出登入</a></li>
          </template>
          <template v-else>
             <li><router-link to="/login">请先登入</router-link></li>
@@ -24,17 +24,25 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 export default {
   name: "navbar",
   setup() {
     //获取用户的登入信息
     const store=useStore()
+    const router=useRouter()
     const userInfo=computed(()=>{
       return store.state.user.userInfo
     })
-
+    //退出登入事件
+    const loginOut=()=>{
+      store.commit('user/setUser',{})
+      store.commit('cart/setUser',[])
+      router.push('login')
+    }
     return{
-      userInfo
+      userInfo,
+      loginOut
     }
   },
 };

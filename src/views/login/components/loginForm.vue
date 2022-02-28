@@ -37,7 +37,7 @@
           <div class="input">
             <i class="iconfont icon-code"></i>
             <Field :class="{error:errors.code}" v-model="form.code" name="code" type="password" placeholder="请输入验证码"/>
-            <span class="code">发送验证码</span>
+            <span @click="send" class="code">{{times==0?'发送验证码':times+'秒后'}}</span>
           </div>
            <div v-if="errors.code" class="error"><i class="iconfont icon-warning" />{{errors.code}}</div>
         </div>
@@ -55,7 +55,10 @@
       <a @click='login' href="javascript:;" class="btn">登录</a>
     </Form>
     <div class="action">
-      <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+      <a href="https://graph.qq.com/oauth2.0/authorize?client_id=100556005&response_type=token&scope=all&redirect_uri=http%3A%2F%2Fwww.corho.com%3A8080%2F%23%2Flogin%2Fcallback">
+        <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
+      </a>
+      <!-- <span id='qqLoginBtn'></span> -->
       <div class="url">
         <a href="javascript:;">忘记密码</a>
         <a href="javascript:;">免费注册</a>
@@ -64,10 +67,13 @@
   </div>
 </template>
 <script>
-import { ref,reactive, watch, getCurrentInstance } from "vue"
+import { ref,reactive, watch, getCurrentInstance, onUnmounted, onMounted } from "vue"
 import {Form ,Field} from'vee-validate'
 import schema1 from'@/utils/vee-validate-schema.js'
-import Message from'@/components/library/message'
+import {userAccountLogin, userMobileLogin, userMobileLoginMeg} from'@/api/user.js'
+import { useStore } from "vuex"
+import {useRoute, useRouter } from "vue-router"
+import { useIntervalFn } from "@vueuse/core"
 export default ({
   name:'LoginForm',
   components:{
@@ -100,20 +106,70 @@ export default ({
       //清除表单的校验结果
       formRef.value.resetForm()
     })
+    const store=useStore()
+    const router=useRouter()
+    const route=useRoute()
     /* 拿到当前组件实例 */
     const {proxy}=getCurrentInstance()
+    const times=ref(0)
+    //发送验证码单击事件
+    const send=async ()=>{
+      if(times.value==0){
+         if(schema.mobile(form.mobile)==true){
+          await userMobileLogin(form.mobile)
+          proxy.$message('success','短信验证码发送成功')
+          times.value=60
+          /* pause暂停 resume开始 */
+          var {pause}=useIntervalFn(()=>{
+            times.value--
+            times.value==0?pause():null
+          },1000)//回调函数 1秒执行一次 不立即开启
+        }else{
+          formRef.value.setFieldError('mobile',schema.mobile(form.mobile))
+        }
+      }
+    }
     const login=async ()=>{
        //Form 组件提供了一个 validate函数作为整体表单校验 返回的是一个promise
        const valid =await formRef.value.validate()
-       proxy.$message('error','密码错误')
-       
+       //通过表单校验
+       if(valid){
+         try{
+           let data=null
+           if(isMsgLogin.value){
+             //手机号登入
+             const {mobile,code}=form
+             data=await userMobileLoginMeg(mobile,code)                
+           }else{
+             //账号登入
+             const {account,password}=form
+             data=await userAccountLogin(account,password)
+           }
+           const {id,account,avatar,mobile,nickname,token}=data.result
+           //把信息存到vuex中
+           store.commit('user/setUser',{id,account,avatar,mobile,nickname,token})
+           store.dispatch('cart/mergeCart').then(res=>{
+             //从哪来跳回哪里
+             router.push(route.params.redirectUrl || '/')
+             proxy.$message('success','登入成功')
+           })
+           
+         }catch(e){
+           if(e.response.data){
+              console.log(11);
+              proxy.$message('error',e.response.data.message||'登入失败')
+           }
+         }
+       }
     }
     return{
       isMsgLogin,
       form,
       schema,
       formRef,
-      login
+      login,
+      send,
+      times
     }
   },
 })

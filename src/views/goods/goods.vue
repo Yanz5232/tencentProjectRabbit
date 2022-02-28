@@ -18,7 +18,7 @@
           <GoodsName :goods="goods"></GoodsName>
           <GoodsSku @change='change' :specs='goods.specs' :skus="goods.skus" :skuId='"1369155862131642369"'></GoodsSku>
           <XtxNumbox v-model="count" :maxNum='goods.inventory' :label='"数量"' ></XtxNumbox>
-          <XtxButton type='primary'>加入购物车</XtxButton>
+          <XtxButton @click="addGood" type='primary'>加入购物车</XtxButton>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { nextTick, provide, ref, watch } from 'vue'
+import { getCurrentInstance, nextTick, provide, ref, watch } from 'vue'
 import GoodsRelevant from './components/goodsRelevant.vue'
 import { useRoute } from 'vue-router'
 import {findGoods} from'@/api/product.js'
@@ -53,29 +53,59 @@ import GoodsSku from'./components/goodsSku.vue'
 import GoodsTabs from'./components/goods-tabs.vue' 
 import GoodsHot from'./components/goods-hot.vue'
 import GoodsWarn from'./components/goods-warn.vue'
+import { useStore } from 'vuex'
 export default {
   name: 'XtxGoodsPage',
   components: {  GoodsRelevant,GoodsImgs,GoodsSales,GoodsName,GoodsSku,GoodsTabs,GoodsHot,GoodsWarn },
   setup(){
       const goodsId=ref()
       const goods=useGoods()
+      const store=useStore()
+      const currSku=ref()
       const change=(obj)=>{
         goods.value.price=obj.price
         goods.value.oldPrice=obj.oldPrice
         goods.value.inventory=obj.inventory
-        console.log(goods);
+        currSku.value=obj
       }
       //选择的数量
       const count=ref(1)
       const route=useRoute()
+      const {proxy}=getCurrentInstance()
       goodsId.value=route.params.id
       //提供goods数据给后代组件使用
       provide('goods',goods)
+      /* 加入购物车按钮点击事件 */
+      const addGood=()=>{
+        //id skuId name attrsText picture price nowPrice selected stock count isEffective
+        if(currSku.value && currSku.value.skuId){
+          const {skuId,specsText:attrsText,inventory:stock}=currSku.value
+          const {id,name,price,mainPictures}=goods.value
+          store.dispatch('cart/insertCart',{
+            skuId,
+            attrsText,
+            stock,
+            id,
+            name,
+            price,
+            nowPrice:price,
+            picture:mainPictures[0],
+            selected:true,
+            isEffective:true,
+            count:count.value
+            }).then(res=>{
+              proxy.$message('success',"添加商品成功")
+            })
+        }else{
+          proxy.$message('warn','请选择商品规格')
+        }
+      }
       return{
         goods,
         change,
         count,
-        goodsId
+        goodsId,
+        addGood
       }
   }
 }

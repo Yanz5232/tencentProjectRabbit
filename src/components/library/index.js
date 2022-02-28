@@ -7,6 +7,7 @@ import xtxCarousel from './xtx-carousel.vue'
 import xtxMore from './xtx-more.vue' */
 import defaultImg from '@/assets/images/200.jpg'
 import message from './message'
+import confirm from './confirm'
 /* import xtxBread from './xtx-bread.vue'
 import xtxBreadItem from './xtx-bread-item.vue' */
 
@@ -32,6 +33,7 @@ export default {
         defineDirective(app)
 
         app.config.globalProperties.$message = message
+        app.config.globalProperties.$confirm = confirm
     }
 }
 //定义指令

@@ -11,10 +11,10 @@ import { useVModel } from '@vueuse/core'
 //v-model ===> :modelValue + @update:modelValue
 export default {
   name:'XtxCheckbox',
-  props:{
-    checkedChange:{
-      type:Boolean,
-      default:false
+   props: {
+    modelValue: {
+      type: Boolean,
+      default: false
     }
   },
   setup(props,{emit}){
@@ -32,7 +32,7 @@ export default {
     //使用useVModel来包装props里的modelValue属性数据
     //使用checked.value 就是使用父组件数据
     //给checked.value赋值 会触发emit('update:modelvalue','数据')
-    const checked=useVModel(props,'checkedChange',emit)
+    const checked=useVModel(props,'modelValue',emit)
     const change=()=>{
       const newVal=!checked.value
       checked.value=newVal

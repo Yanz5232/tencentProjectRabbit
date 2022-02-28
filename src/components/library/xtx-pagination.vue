@@ -82,6 +82,8 @@ export default {
     }
     const page=(i)=>{
        myCurrentPage.value=i
+       console.log(myCurrentPage.value);
+       emit('currentPage',myCurrentPage)
     }
     /* 监听props的变化 更新组件内部的数据 */
     watch(props,()=>{

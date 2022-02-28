@@ -1,7 +1,7 @@
 <template>
   <div class="xtx-city" ref="target">
     <div class="select" >
-      <span v-if="!fullLocation" class="placeholder"  :style="visible?{color:'turquoise'}:{color:'rgb(165, 153, 176)'}" @click="toggle">请选择配送地址</span>
+      <span v-if="!fullLocation" class="placeholder"  :style="visible?{color:'turquoise'}:{color:'rgb(165, 153, 176)'}" @click="toggle">{{city}}</span>
       <span v-else class="value" :style="visible?{color:'turquoise'}:{color:'rgb(165, 153, 176)'}" @click="toggle">{{fullLocation}}</span>
       <i class="iconfont icon-angle-down"></i>
     </div>
@@ -22,6 +22,10 @@ export default {
   props:{
     fullLocation:{
       type:String
+    },
+    city:{
+      type:String,
+      default:'请选择配送地址'
     }
   },
   setup (props,{emit}) {
